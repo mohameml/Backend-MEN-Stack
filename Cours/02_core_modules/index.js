@@ -1,12 +1,12 @@
 const fs = require("fs");
 
 // Blocking code : Sync
-// const txt = fs.readFileSync("./test.txt", "utf-8");
+const txt = fs.readFileSync("./test.txt", "utf-8");
 
-// console.log(txt);
+console.log(txt);
 
-// const output = `Hello : ${txt}.\n Created at ${Date.now()}`;
-// fs.writeFileSync("output.txt", output);
+const output = `Hello : ${txt}.\n Created at ${Date.now()}`;
+fs.writeFileSync("output.txt", output);
 
 // Non-Blocking code : Async
 

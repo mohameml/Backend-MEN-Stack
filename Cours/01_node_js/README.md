@@ -88,3 +88,28 @@
         -   Le caractère **`_`** dans le REPL de Node.js fait référence au **résultat précédent** retourné par une expression ou une commande.
 
     -   **Utilisation de `nameOfClass.` + Tab pour afficher les méthodes de la classe :**
+
+## 3. **Exécuter le fichier JavaScript avec Node.js**
+
+-   Une fois que vous avez votre fichier JavaScript prêt, vous pouvez l'exécuter en utilisant la commande `node` dans votre terminal ou ligne de commande.
+
+    ```bash
+    node app.js
+    ```
+
+    Cela exécutera le fichier `app.js` et vous affichera le résultat dans le terminal, qui devrait être :
+
+-   **Utiliser `node` avec des arguments**
+
+    -   Vous pouvez également passer des arguments à votre script JavaScript depuis la ligne de commande. Par exemple, vous pouvez modifier votre fichier pour accepter des arguments :
+
+    ```javascript
+    // app.js
+    console.log("Argument passé : " + process.argv[2]);
+    ```
+
+    Ensuite, vous pouvez exécuter le fichier avec un argument comme ceci :
+
+    ```bash
+    node app.js Bonjour
+    ```
