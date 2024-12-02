@@ -190,7 +190,10 @@
         - Le code de statut est obligatoire, mais les en-têtes sont optionnels.
         - Exemple :
             ```javascript
-            res.writeHead(200, { "Content-Type": "text/plain" });
+            res.writeHead(200, {
+                "Content-Type": "text/plain",
+                "my-header": "my-value",
+            });
             ```
 
     2. **`res.setHeader(name, value)`** :
