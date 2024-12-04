@@ -83,3 +83,68 @@
         console.log(`Listening in adress : ${IP_ADRESS}  at the port ${PORT}`);
     });
     ```
+
+## 3. **Module `url`:Méthode `url.parse`:**
+
+> Le module **`url`** en Node.js est utilisé pour analyser, manipuler et construire des URLs. Il fournit plusieurs méthodes pour travailler avec des URLs, notamment **`url.parse()`**, qui est utilisée pour diviser une URL en ses composants constitutifs.
+
+-   **Description** :
+
+    > La méthode **`url.parse()`** analyse une URL donnée et renvoie un objet avec ses différentes composantes (protocole, hôte, chemin, requêtes, etc.).
+
+-   **Syntaxe** :
+
+    ```javascript
+    url.parse(urlString, parseQueryString, slashesDenoteHost);
+    ```
+
+    -   **`urlString`** : (obligatoire) L'URL à analyser sous forme de chaîne.
+    -   **`parseQueryString`** : (optionnel, par défaut `false`) Si défini à `true`, les paramètres de requête (`query`) sont analysés en un objet.
+    -   **`slashesDenoteHost`** : (optionnel, par défaut `false`) Si défini à `true`, les doubles barres obliques (`//`) sont interprétées comme partie intégrante de l'hôte.
+
+-   **Composantes principales de l'objet retourné** :
+
+    Voici les propriétés les plus couramment utilisées dans l'objet retourné par `url.parse` :
+
+    | **Propriété**  | **Description**                                      |
+    | -------------- | ---------------------------------------------------- |
+    | **`protocol`** | Le protocole utilisé (ex. : `http:` ou `https:`).    |
+    | **`hostname`** | Le nom de domaine ou l'adresse IP de l'hôte.         |
+    | **`pathname`** | Le chemin d'accès à la ressource (après le domaine). |
+    | **`query`**    | Les paramètres de la requête (après `?`).            |
+    | **`port`**     | Le port spécifié dans l'URL (s'il existe).           |
+    | **`hash`**     | Le fragment (après `#`).                             |
+    | **`href`**     | L'URL d'origine sous forme de chaîne.                |
+
+-   **Exemple d'utilisation:**
+
+    ```javascript
+    const url = require("url");
+
+    const myURL =
+        "https://www.example.com:8080/path/to/resource?name=John&age=30#section";
+
+    const parsedURL = url.parse(myURL, true);
+
+    console.log(parsedURL.protocol); // 'https:'
+    console.log(parsedURL.hostname); // 'www.example.com'
+    console.log(parsedURL.port); // '8080'
+    console.log(parsedURL.pathname); // '/path/to/resource'
+    console.log(parsedURL.query); // {name :John , age : 30}
+    console.log(parsedURL.hash); // '#section'
+    ```
+
+### **RQ :Dépréciation** :
+
+Depuis Node.js 11.0.0, `url.parse` est marqué comme obsolète en faveur de la classe `URL`. La nouvelle API `URL` est plus moderne et sécurisée.
+
+```javascript
+const { URL } = require("url");
+
+const myURL = new URL("https://www.example.com/path?name=John&age=30");
+
+console.log(myURL.protocol); // 'https:'
+console.log(myURL.pathname); // '/path'
+console.log(myURL.searchParams.get("name")); // 'John'
+console.log(myURL.searchParams.get("age")); // '30'
+```
