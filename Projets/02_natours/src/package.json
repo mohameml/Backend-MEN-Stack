@@ -1,0 +1,14 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "fan project to learn node js , express js and mongoDB",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "Nebil",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
