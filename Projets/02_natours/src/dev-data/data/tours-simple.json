@@ -221,9 +221,9 @@
     },
     {
         "id": 11,
-        "name": "Nebil Tour",
+        "name": "Test Checkbody Middelware",
         "duration": 15,
         "difficulty": "easy",
-        "price": 400
+        "price": 4000
     }
 ]

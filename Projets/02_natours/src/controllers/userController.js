@@ -1,9 +1,21 @@
 const fs = require('fs');
 const base64id = require('base64id');
+const saveAndSendData = require('../utils/saveAndSendData');
 
-const users = JSON.parse(
-    fs.readFileSync(`${__dirname}/../dev-data/data/users.json`)
-);
+const path = `${__dirname}/../dev-data/data/users.json`;
+const users = JSON.parse(fs.readFileSync(path));
+
+const checkID = (req, res, next, val) => {
+    let user = users.find((ele) => ele._id === val);
+
+    if (!user) {
+        return res.status(404).json({
+            status: 'fail',
+            message: `checkID : user with id ${val} not found`,
+        });
+    }
+    next();
+};
 
 const getAllUsers = (req, res) => {
     res.status(200).json({
@@ -20,99 +32,59 @@ const getUser = (req, res) => {
 
     let user = users.find((ele) => ele._id === id);
 
-    if (!user) {
-        res.status(404).json({
-            status: 'fail',
-            message: `user with id ${id} not found`,
-        });
-    } else {
-        res.status(200).json({
-            status: 'success',
-            data: {
-                user: user,
-            },
-        });
-    }
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: user,
+        },
+    });
 };
 
 const createUser = (req, res) => {
     let id = base64id.generateId();
     let user = Object.assign({ _id: id }, req.body);
     users.push(user);
-    fs.writeFile(
-        `${__dirname}/dev-data/data/users.json`,
-        JSON.stringify(users, null, 4),
-        (err) => {
-            if (!err) {
-                res.status(201).json({
-                    status: 'success',
-                    data: {
-                        user: user,
-                    },
-                });
-            }
-        }
-    );
+    saveAndSendData(path, users, res, 201, {
+        status: 'success',
+        data: {
+            user: user,
+        },
+    });
 };
 
 const updateUser = (req, res) => {
     let id = req.params.id;
-
     let user = users.find((ele) => ele._id === id);
+    let index = users.indexOf(user);
+    Object.assign(user, req.body);
+    users[index] = user;
 
-    if (!user) {
-        res.status(404).json({
-            status: 'fail',
-            message: `user with id ${id} not found`,
-        });
-    } else {
-        let index = users.indexOf(user);
-        Object.assign(user, req.body);
-        users[index] = user;
-        fs.writeFile(
-            `${__dirname}/dev-data/data/users.json`,
-            JSON.stringify(users, null, 4),
-            (err) => {
-                if (!err) {
-                    res.status(200).json({
-                        status: 'success',
-                        data: {
-                            user: user,
-                        },
-                    });
-                }
-            }
-        );
-    }
+    saveAndSendData(path, users, res, 200, {
+        status: 'success',
+        data: {
+            user: user,
+        },
+    });
 };
 
 const deleteUser = (req, res) => {
     let id = req.params.id;
-
     let user = users.find((ele) => ele._id === id);
+    let index = users.indexOf(user);
 
-    if (!user) {
-        res.status(404).json({
-            status: 'fail',
-            message: `user with id ${id} not found`,
-        });
-    } else {
-        let index = users.indexOf(user);
-        users.splice(index, 1);
-        fs.writeFile(
-            `${__dirname}/dev-data/data/users.json`,
-            JSON.stringify(users, null, 4),
-            (err) => {
-                if (!err) {
-                    res.status(204).json({
-                        status: 'success',
-                        results: users.length,
-                        data: null,
-                    });
-                }
-            }
-        );
-    }
+    users.splice(index, 1);
+    saveAndSendData(path, users, res, 204, {
+        status: 'success',
+        results: users.length,
+        data: null,
+    });
 };
 
-module.exports = { getAllUsers, getUser, createUser, updateUser, deleteUser };
+module.exports = {
+    getAllUsers,
+    getUser,
+    createUser,
+    updateUser,
+    deleteUser,
+    checkID,
+};
