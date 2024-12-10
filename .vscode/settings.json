@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.java": "java",
+        "*.rmd": "markdown",
+        "iostream": "cpp"
+    }
+}

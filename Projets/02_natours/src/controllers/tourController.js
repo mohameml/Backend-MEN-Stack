@@ -1,11 +1,12 @@
 const fs = require('fs');
 const saveAndSendData = require('../utils/saveAndSendData');
+
 const path = `${__dirname}/../dev-data/data/tours-simple.json`;
 
 const tours = JSON.parse(fs.readFileSync(path));
 
 const checkID = (req, res, next, val) => {
-    const tour = tours.find((ele) => ele.id === parseInt(val));
+    const tour = tours.find((ele) => ele.id === +val);
 
     if (!tour) {
         return res.status(400).json({
