@@ -3,6 +3,8 @@
 -   **installtion de grpc et protobuf pour c# :**
 
     ```bash
+    dotnet new console -n GrpcClientExample
+    cd GrpcClientExample
     dotnet add package Grpc.Net.Client
     dotnet add package Grpc.Tools
     dotnet add package  Google.Protobuf
@@ -12,7 +14,7 @@
 
     ```xml
     <ItemGroup>
-    <Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
+        <Protobuf Include="Protos/greet.proto" GrpcServices="Client" />
     </ItemGroup>
     ```
 
