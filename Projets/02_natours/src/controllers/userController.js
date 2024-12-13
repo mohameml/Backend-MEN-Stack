@@ -6,7 +6,7 @@ const path = `${__dirname}/../dev-data/data/users.json`;
 const users = JSON.parse(fs.readFileSync(path));
 
 const checkID = (req, res, next, val) => {
-    let user = users.find((ele) => ele._id === val);
+    const user = users.find((ele) => ele._id === val);
 
     if (!user) {
         return res.status(404).json({
@@ -41,8 +41,8 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-    let id = base64id.generateId();
-    let user = Object.assign({ _id: id }, req.body);
+    const id = base64id.generateId();
+    const user = Object.assign({ _id: id }, req.body);
     users.push(user);
     saveAndSendData(path, users, res, 201, {
         status: 'success',

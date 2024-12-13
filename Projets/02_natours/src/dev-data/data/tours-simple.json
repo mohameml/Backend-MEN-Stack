@@ -205,25 +205,5 @@
             "2022-01-16,10:00",
             "2022-12-12,10:00"
         ]
-    },
-    {
-        "id": 9,
-        "name": "New Name to test Patch",
-        "duration": 10,
-        "difficulty": "easy"
-    },
-    {
-        "id": 10,
-        "name": "Nebil Tour",
-        "duration": 15,
-        "difficulty": "easy",
-        "price": 400
-    },
-    {
-        "id": 11,
-        "name": "Test Checkbody Middelware",
-        "duration": 15,
-        "difficulty": "easy",
-        "price": 4000
     }
 ]
