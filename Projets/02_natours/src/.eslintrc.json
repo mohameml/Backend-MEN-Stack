@@ -16,6 +16,7 @@
     "prefer-destructuring": ["error", { "object": true, "array": false }],
     "no-unused-vars": ["warn", { "argsIgnorePattern": "req|res|next|val" }],
     "no-undef": "error", // Erreur si une variable ou une propriété est indéfinie
-    "dot-notation": ["error", { "allowKeywords": true }] // Recommande d'accéder aux propriétés avec le point (.)
+    "dot-notation": ["error", { "allowKeywords": true }] , // Recommande d'accéder aux propriétés avec le point (.)
+    "node/no-unsupported-features/es-syntax": ["wran", { "version": ">=8.3.0" }]
   }
 }

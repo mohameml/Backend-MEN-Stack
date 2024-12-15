@@ -116,6 +116,8 @@
     | **maxLength**       | Longueur maximale pour les chaînes.    | `maxLength: 255`                  |
     | **enum**            | Limite la valeur à un ensemble défini. | `enum: ['val1', 'val2']`          |
     | **validate**        | Permet une validation personnalisée.   | `validate: (val) => val > 0`      |
+    | **select**          | Permet de sélectionner la propriété .  | `select : false`                  |
+
 
 -   **Exemple:**
 
