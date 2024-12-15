@@ -1,5 +1,7 @@
 # cour : **CRUD**
 
+> Mongoose models provide several static helper functions for CRUD operations. Each of these functions returns a mongoose ``Query`` object.
+
 ## 1. **CREATE :**
 
 -   **Description**
