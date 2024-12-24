@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_client_Csharp", "02_clie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{E6715472-1B9E-4B37-8664-9D83074C1431}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcClientWithCplusplus", "Cours\15_gRPC\02_client_Csharp\client\GrpcClientWithCplusplus\GrpcClientWithCplusplus.csproj", "{EE62EA89-64D7-4C67-8983-0EA00E364295}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcClientWithCplusplus", "GrpcClientWithCplusplus.csproj", "{EE62EA89-64D7-4C67-8983-0EA00E364295}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
