@@ -90,7 +90,7 @@ const deleteTour = async (req, res) => {
     try {
         await Tour.findByIdAndDelete(req.params.id);
         res.status(204).json({
-            status: 'sucess',
+            status: 'success',
             data: null,
         });
     } catch (error) {
@@ -110,11 +110,71 @@ const aliasTopTours = (req, res, next) => {
 }
 
 
+const getToursStats = async (req, res) => {
+
+    try {
+        const stats = await Tour.aggregate([
+            {
+                $match: { ratingsAverage: { $gte: 4.5 } }
+            },
+            {
+
+                $group: {
+                    _id: { $toUpper: '$difficulty' },
+                    numTours: { $sum: 1 },
+                    numRating: { $sum: '$ratingsQuantity' },
+                    avgRating: { $avg: '$ratingsAverage' },
+                    avgPrice: { $avg: '$price' },
+                    maxPrice: { $max: '$price' },
+                    minPrice: { $min: '$price' }
+
+                }
+            },
+            {
+                $addFields: {
+                    order: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ['$_id', 'EASY'] }, then: 1 },
+                                { case: { $eq: ['$_id', 'MEDIUM'] }, then: 2 },
+                                { case: { $eq: ['$_id', 'DIFFICULT'] }, then: 3 }
+                            ],
+                            default: 4 // In case there are unexpected values
+                        }
+                    }
+                }
+            },
+            // Sort by the custom order
+            {
+                $sort: { order: 1 }
+            },
+            {
+                $match: { _id: { $ne: 'EASY' } }
+            }
+
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                stats: stats
+            }
+        })
+
+    } catch (e) {
+        res.status(400).json({
+            status: 'fail',
+            message: e,
+        });
+    }
+}
+
 module.exports = {
     getAllTours,
     getTour,
     createTour,
     updateTour,
     deleteTour,
-    aliasTopTours
+    aliasTopTours,
+    getToursStats
 };
