@@ -15,6 +15,19 @@ router
 
 
 router
+    .route('/max-price')
+    .get(tourController.getMaxPrice);
+
+
+router
+    .route('/min-price')
+    .get(tourController.getMinPrice);
+
+router
+    .route('/monthly-plan/:year')
+    .get(tourController.getMonthlyPlan);
+
+router
     .route('/')
     .get(tourController.getAllTours)
     .post(tourController.createTour);

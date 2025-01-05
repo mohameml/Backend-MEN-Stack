@@ -99,3 +99,220 @@
 
 ## 3. **``Stages:``**
 
+
+- **Match** :
+
+    - L'étape `$match` permet de filtrer les documents dans une collection en fonction d'une condition spécifiée. Elle est équivalente à une requête de type `find`.
+
+
+    - **Syntaxe:**
+
+        ```json
+        {
+        $match: {
+            <field>: <value>,
+            <field2>: { <operator>: <value> }
+        }
+        }
+        ```
+
+    - **Exemple :**
+
+        Filtrer les documents où l'âge est supérieur à 25.
+        ```javascript
+        db.collection.aggregate([
+        { $match: { age: { $gt: 25 } } }
+        ])
+        ```
+
+- **Group :**
+
+
+    - L'étape `$group` regroupe les documents par un champ spécifié et applique des opérations d'agrégation comme la somme, la moyenne, etc.
+
+    - **Syntaxe :**
+
+        ```json
+        {
+        $group: {
+            _id: <expression>, 
+            <field1>: { <accumulator>: <expression> },
+            <field2>: { <accumulator>: <expression> }
+        }
+        }
+        ```
+        - ``accumulator`` : `$sum` , `$avg` , `$max` et `$min`
+        - ``expression`` : `'$FieldName'`
+
+
+    - **Exemple :**
+
+        Calculer l'âge moyen des utilisateurs par groupe de ville.
+        ```javascript
+        db.collection.aggregate([
+        {
+            $group: {
+            _id: "$city",
+            averageAge: { $avg: "$age" }
+            }
+        }
+        ])
+        ```
+
+
+- **Sort :**
+
+
+    - L'étape `$sort` permet de trier les documents par un ou plusieurs champs dans l'ordre croissant (`1`) ou décroissant (`-1`).
+
+
+    - **Syntaxe :**
+
+        ```json
+        {
+        $sort: {
+            <field1>: <order>,
+            <field2>: <order>
+        }
+        }
+        ```
+
+        - `order` : ``1`` (croissant) , ``- 1`` (décroissant)
+
+
+    - **Exemple :**
+
+        Trier les utilisateurs par âge décroissant.
+        ```javascript
+        db.collection.aggregate([
+        { $sort: { age: -1 } }
+        ])
+        ```
+
+
+
+- **Unwind :**
+
+  - L'étape `$unwind` décompose un tableau en créant un document distinct pour chaque élément du tableau.
+  - Elle est utile pour travailler avec des champs de type tableau dans une pipeline d'agrégation.
+
+    - **Syntaxe :**
+        ```json
+        {
+            $unwind: "$fieldName"
+        }
+        ```
+
+    - **Exemple :**
+        Décomposer le tableau `skills` pour chaque utilisateur.
+        ```javascript
+        db.collection.aggregate([
+            { $unwind: "$skills" }
+        ])
+        ```
+
+    ![alt text](image.png)
+
+
+- **Project :**
+
+  - L'étape `$project` permet de sélectionner ou de transformer les champs des documents en spécifiant quels champs inclure, exclure ou modifier.
+
+    - **Syntaxe :**
+        ```json
+        {
+            $project: {
+            <field1>: <include|exclude>,
+            <field2>: <expression>
+            }
+        }
+        ```
+
+        - `1` : Inclure un champ.
+        - `0` : Exclure un champ.
+        - `<expression>` : Transforme ou crée un nouveau champ.
+
+    - **Exemple :**
+        Inclure les champs `name` et `age`, mais exclure `_id`.
+        ```javascript
+        db.collection.aggregate([
+            {
+            $project: {
+                _id: 0,
+                name: 1,
+                age: 1
+            }
+            }
+        ])
+        ```
+
+
+- **Limit :**
+
+  - L'étape `$limit` est utilisée pour limiter le nombre de documents dans le résultat.
+  - Elle est utile pour la pagination ou les extractions partielles.
+
+    - **Syntaxe :**
+        ```json
+        {
+            $limit: <number>
+        }
+        ```
+
+        - `<number>` : Nombre maximum de documents à inclure dans le résultat.
+
+    - **Exemple :**
+        Limiter le résultat à 5 documents.
+        ```javascript
+        db.collection.aggregate([
+            { $limit: 5 }
+        ])
+        ```
+
+
+- **AddFields :**
+
+  - L'étape `$addFields` est utilisée pour ajouter de nouveaux champs ou modifier des champs existants dans les documents. Les nouveaux champs peuvent être basés sur des expressions ou des transformations de champs existants.
+
+    - **Syntaxe :**  
+        ```json
+        {
+            $addFields: {
+            <newField1>: <expression>,
+            <newField2>: <expression>
+            }
+        }
+        ```
+
+        - `<newField>` : Nom du champ à ajouter ou à modifier.
+        - `<expression>` : Expression ou valeur qui sera affectée au champ.
+
+        
+
+    - **Exemple :**
+
+
+        ```json
+        [
+        { "_id": 1, "name": "Alice", "salary": 3000, "bonus": 500 },
+        { "_id": 2, "name": "Bob", "salary": 4000, "bonus": 700 },
+        { "_id": 3, "name": "Charlie", "salary": 3500, "bonus": 600 }
+        ]
+        ```
+
+        ```javascript
+        db.employees.aggregate([
+        {
+            $addFields: {
+            totalCompensation: { $add: ["$salary", "$bonus"] }
+            }
+        }
+        ])
+        ```
+
+
+
+
+
+
+

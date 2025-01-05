@@ -169,6 +169,118 @@ const getToursStats = async (req, res) => {
     }
 }
 
+
+const getMaxPrice = async (req, res) => {
+
+    try {
+        const maxPrice = await Tour.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    maxPrice: { $max: '$price' }
+                }
+            }
+        ])
+        res.status(200).json({
+            status: 'success',
+            data: {
+                maxPrice: maxPrice
+            }
+        })
+    } catch (e) {
+        res.status(400).json({
+            status: 'fail',
+            message: e,
+        });
+    }
+
+}
+
+
+const getMinPrice = async (req, res) => {
+
+    try {
+        const minPrice = await Tour.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    minPrice: { $min: '$price' }
+                }
+            }
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                minPrice: minPrice
+            }
+        })
+
+    } catch (e) {
+        res.status(400).json({
+            status: 'fail',
+            message: e,
+        });
+    }
+}
+
+// mooth that have the most Travel 
+const getMonthlyPlan = async (req, res) => {
+
+    try {
+
+        const year = req.params.year * 1;
+
+        const plan = await Tour.aggregate([
+            {
+                $unwind: '$startDates'
+            },
+            {
+                $match: {
+                    startDates: {
+                        $gte: new Date(`${year}-01-01`),
+                        $lte: new Date(`${year}-12-31`)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: '$startDates' },
+                    numTourStarts: { $sum: 1 },
+                    tours: { $push: '$name' },
+                }
+            },
+            {
+                $addFields: { moath: '$_id' }
+            },
+            {
+                $project: { _id: 0 }
+            },
+            {
+                $sort: { numTourStarts: - 1 }
+            },
+            {
+                $limit: 6
+            }
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            length: plan.length,
+            data: {
+                plan: plan
+            }
+        })
+
+
+    } catch (e) {
+        res.status(400).json({
+            status: 'fail',
+            message: e,
+        });
+    }
+}
+
 module.exports = {
     getAllTours,
     getTour,
@@ -176,5 +288,8 @@ module.exports = {
     updateTour,
     deleteTour,
     aliasTopTours,
-    getToursStats
+    getToursStats,
+    getMaxPrice,
+    getMinPrice,
+    getMonthlyPlan
 };
