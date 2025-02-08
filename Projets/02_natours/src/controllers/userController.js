@@ -1,23 +1,14 @@
-const fs = require('fs');
-const base64id = require('base64id');
-const saveAndSendData = require('../utils/saveAndSendData');
+const catchAsync = require('../utils/catchAsync')
+const User = require('../models/userModel');
+const AppError = require('../Error/AppError');
 
-const path = `${__dirname}/../dev-data/data/users.json`;
-const users = JSON.parse(fs.readFileSync(path));
 
-const checkID = (req, res, next, val) => {
-    const user = users.find((ele) => ele._id === val);
 
-    if (!user) {
-        return res.status(404).json({
-            status: 'fail',
-            message: `checkID : user with id ${val} not found`,
-        });
-    }
-    next();
-};
 
-const getAllUsers = (req, res) => {
+const getAllUsers = catchAsync(async (req, res, next) => {
+
+    const users = await User.find();
+
     res.status(200).json({
         status: 'success',
         results: users.length,
@@ -25,7 +16,7 @@ const getAllUsers = (req, res) => {
             users: users,
         },
     });
-};
+});
 
 const getUser = (req, res) => {
     let id = req.params.id;
@@ -67,18 +58,23 @@ const updateUser = (req, res) => {
     });
 };
 
-const deleteUser = (req, res) => {
-    let id = req.params.id;
-    let user = users.find((ele) => ele._id === id);
-    let index = users.indexOf(user);
 
-    users.splice(index, 1);
-    saveAndSendData(path, users, res, 204, {
+
+
+const deleteUser = async (req, res, next) => {
+
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+        return next(new AppError(`No user found`, 404));
+    }
+
+    res.status(204).json({
         status: 'success',
-        results: users.length,
-        data: null,
-    });
-};
+        data: null
+    })
+}
+
 
 module.exports = {
     getAllUsers,
@@ -86,5 +82,4 @@ module.exports = {
     createUser,
     updateUser,
     deleteUser,
-    checkID,
 };

@@ -50,6 +50,10 @@ const handelValidationErrorDB = (err) => {
     return new AppError(message, 400);
 }
 
+const handelJWTError = err => new AppError("Invalid token. Please login agian!", 401);
+
+
+const handelJWTExpireError = err => new AppError("Your token has expired! Please log in again.", 401);
 
 const globaleErrorHandling = (err, req, res, next) => {
 
@@ -73,6 +77,14 @@ const globaleErrorHandling = (err, req, res, next) => {
 
         if (err.name === "ValidationError") {
             error = handelValidationErrorDB(err);
+        }
+
+        if (err.name === "JsonWebTokenError") {
+            error = handelJWTError(err);
+        }
+
+        if (err.name === "TokenExpiredError") {
+            error = handelJWTExpireError(err);
         }
 
         sendErrorProd(error, res);

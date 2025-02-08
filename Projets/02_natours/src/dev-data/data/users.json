@@ -178,5 +178,10 @@
         "active": true,
         "photo": "user-20.jpg",
         "password": "$2a$12$uA9FsDw63v6dkJKGlLQ/8ufYBs8euB7kqIQewyYlZXU5azEKeLEky"
+    },
+    {
+        "_id": "jv48MrR8PZxjMszJAAAA",
+        "name": "sidi ",
+        "email": "nebil@gamil.com"
     }
 ]
