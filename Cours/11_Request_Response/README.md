@@ -109,6 +109,8 @@
     | **`res.render(view, options)`** | Rendu d’une vue (template) avec des options, si un moteur de rendu est configuré.          |
     | **`res.type(type)`**            | Définit le type MIME de la réponse.                                                        |
     | **`res.end()`**                 | Termine la réponse sans envoyer de contenu.                                                |
+    | **`res.cookie(name , value , Options)`**                 | Termine la réponse sans envoyer de contenu.                                                |
+
 
 -   **Exemple :**
 

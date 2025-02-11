@@ -56,6 +56,9 @@ L’**authentification** est le processus qui permet de vérifier l’identité 
 ✅ **Avantages :** Très sécurisé et difficile à falsifier.  
 ❌ **Limites :** Difficile à mettre en place pour le grand public.  
 
+
+![alt text](image.png)
+
 ---
 
 ### **🧐 Conclusion : Quel type d’authentification choisir ?**
