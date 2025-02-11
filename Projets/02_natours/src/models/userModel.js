@@ -40,7 +40,12 @@ const userSchema = new mongoose.Schema(
         },
         passwordChangedAt: Date,
         passwordResetToken: String,
-        passwordResetExpires: Date
+        passwordResetExpires: Date,
+        active: {
+            type: Boolean,
+            default: true,
+            select: false
+        }
 
     }
 )
@@ -60,6 +65,14 @@ userSchema.pre('save', async function (next) {
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password') || this.isNew) return next();
     this.passwordChangedAt = Date.now() - 1000; // pour assuret que passwordChangetAt < JWTTimeStep => JWT valide 
+    next();
+})
+
+
+userSchema.pre(/^find/, function (next) {
+    // this pointe to : query 
+
+    this.find({ active: { $ne: false } });
     next();
 })
 
