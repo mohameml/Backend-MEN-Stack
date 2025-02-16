@@ -1,96 +1,27 @@
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures')
 const catchAsync = require('../utils/catchAsync')
+const Factory = require('./handlerFactory')
 const AppError = require('../Error/AppError')
 
-const getAllTours = catchAsync(async (req, res, next) => {
-
-    const features = new APIFeatures(Tour.find(), req.query)
-        .filter()
-        .sort()
-        .select()
-        .page();
-
-    const tours = await features.query;
-
-    res.status(200).json({
-        status: 'success',
-        results: tours.length,
-        data: {
-            tours
-        },
-    });
-
-});
-
-const getTour = catchAsync(async (req, res, next) => {
-
-    // Tour.findOne({_id : req.params.id})
-    const tour = await Tour.findById(req.params.id);
-
-    if (!tour) {
-        next(new AppError(`No tour with the id : ${req.params.id}`, 404));
-        return;
-    }
-
-    res.status(200).json({
-        stataus: 'success',
-        data: {
-            tour: tour,
-        },
-    });
-
-});
 
 
+// Create Handler for Tour Model : 
+const createTour = Factory.createOne(Tour);
 
 
-const createTour = catchAsync(async (req, res, next) => {
+// Read : 
+const getTour = Factory.getOne(Tour, { path: "reviews" })
 
-    const tour = await Tour.create(req.body);
+const getAllTours = Factory.getAll(Tour);
 
-    res.status(201).json({
-        status: 'success',
-        data: {
-            tour: tour,
-        },
-    });
-})
+// Update Handler for Tour Model :
+const updateTour = Factory.updateOne(Tour);
 
-const updateTour = catchAsync(async (req, res, next) => {
 
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-    });
+// Delete Handler for Tour Model : 
+const deleteTour = Factory.deleteOne(Tour);
 
-    if (!tour) {
-        return next(new AppError(`No tour with the id : ${req.params.id}`, 404));
-    }
 
-    res.status(200).json({
-        status: 'success',
-        data: {
-            tour,
-        },
-    });
-
-});
-
-const deleteTour = catchAsync(async (req, res, next) => {
-
-    const tour = await Tour.findByIdAndDelete(req.params.id);
-
-    if (!tour) {
-        return next(new AppError(`No tour with the id : ${req.params.id}`, 404));
-    }
-
-    res.status(204).json({
-        status: 'success',
-        data: null,
-    });
-
-});
 
 // /api/v1/tours?sort=ratingsAverage,price&limit=5
 const aliasTopTours = (req, res, next) => {
@@ -222,6 +153,83 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
 
 });
 
+// /tours-within/:distance/center/:latlng/unit/:unit
+// /tours-within/30/center/34.035973,-118.301917/unit/mi
+const getToursWithin = catchAsync(async (req, res, next) => {
+
+    const { distance, latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(",");
+
+    if (!lat || !lng) {
+        return next(new AppError("You must define lat && lag in format : lat,lag", 400));
+    }
+
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+    const tours = await Tour.find({
+        startLocation: {
+            $geoWithin: {
+                $centerSphere: [
+                    [lng, lat],
+                    radius
+                ]
+            }
+        }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+            tours
+        }
+    });
+
+});
+
+
+const getDistances = catchAsync(async (req, res, next) => {
+
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(",");
+
+    if (!lat || !lng) {
+        return next(new AppError("You must define lat && lag in format : lat,lag", 400));
+    }
+
+    const multiplier = unit === 'mi' ? 0.00062137 : 0.001;
+
+    // geoNear is the only stage for GroSpatile and must always the first stage in the pipline:
+    const distances = await Tour.aggregate([
+        {
+            $geoNear: {
+                // must GeoJSON 
+                near: {
+                    type: 'Point',
+                    coordinates: [lng * 1, lat * 1]
+                },
+                distanceField: 'distance',
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            $project: {
+                distance: 1,
+                name: 1
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        status: 'success',
+        results: distances.length,
+        data: {
+            distances
+        }
+    })
+});
+
+
 module.exports = {
     getAllTours,
     getTour,
@@ -232,5 +240,7 @@ module.exports = {
     getToursStats,
     getMaxPrice,
     getMinPrice,
-    getMonthlyPlan
+    getMonthlyPlan,
+    getToursWithin,
+    getDistances
 };

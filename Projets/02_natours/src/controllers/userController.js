@@ -1,6 +1,28 @@
 const catchAsync = require('../utils/catchAsync')
 const User = require('../models/userModel');
 const AppError = require('../Error/AppError');
+const Factory = require('./handlerFactory')
+
+// Create User  : is not allowod use /signup 
+const createUser = (req, res, next) => {
+
+    res.status(400).json({
+        status: 'fail',
+        message: 'This route is not defined! Please use /signup instead'
+    })
+}
+
+
+//  Read  : 
+const getUser = Factory.getOne(User);
+
+const getAllUsers = Factory.getAll(User);
+
+// Do not update password with this : only for admin 
+const updateUser = Factory.updateOne(User);
+
+// Delte user for admin : 
+const deleteUser = Factory.deleteOne(User);
 
 
 
@@ -19,14 +41,24 @@ const filterObj = (obj, ...allowedFields) => {
 }
 
 
-const updateMe = catchAsync(async (req, res, next) => {
+// ReadMe for user : 
 
+const setUserIdInParams = (req, res, next) => {
+
+    req.params.id = req.user.id;
+    next();
+}
+
+const getMe = Factory.getOne(User);
+
+
+// UpdateMe for user : 
+const updateMe = catchAsync(async (req, res, next) => {
 
     // 1) Create Error if user POST password data 
     if (req.body.password || req.body.passwordConfirm) {
         return next(new AppError("This route is not for password update. Please use /updateMyPassworde", 400));
     }
-
 
     // 2) Filter the fields allowed to update :
 
@@ -49,100 +81,28 @@ const updateMe = catchAsync(async (req, res, next) => {
 
 });
 
-
+// DeleteMe for user : 
 const deleteMe = catchAsync(async (req, res, next) => {
 
     await User.findByIdAndUpdate(req.user.id, { active: false });
     res.status(204).json({
         status: 'success',
         data: null
-    })
-
-
-});
-
-
-
-
-const getAllUsers = catchAsync(async (req, res, next) => {
-
-    const users = await User.find();
-
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users: users,
-        },
     });
+
 });
 
 
-
-// const getUser = (req, res) => {
-//     let id = req.params.id;
-
-//     let user = users.find((ele) => ele._id === id);
-
-//     res.status(200).json({
-//         status: 'success',
-//         data: {
-//             user: user,
-//         },
-//     });
-// };
-
-// const createUser = (req, res) => {
-//     const id = base64id.generateId();
-//     const user = Object.assign({ _id: id }, req.body);
-//     users.push(user);
-//     saveAndSendData(path, users, res, 201, {
-//         status: 'success',
-//         data: {
-//             user: user,
-//         },
-//     });
-// };
-
-// const updateUser = (req, res) => {
-//     let id = req.params.id;
-//     let user = users.find((ele) => ele._id === id);
-//     let index = users.indexOf(user);
-//     Object.assign(user, req.body);
-//     users[index] = user;
-
-//     saveAndSendData(path, users, res, 200, {
-//         status: 'success',
-//         data: {
-//             user: user,
-//         },
-//     });
-// };
-
-
-
-
-// const deleteUser = async (req, res, next) => {
-
-//     const user = await User.findByIdAndDelete(req.params.id);
-
-//     if (!user) {
-//         return next(new AppError(`No user found`, 404));
-//     }
-
-//     res.status(204).json({
-//         status: 'success',
-//         data: null
-//     })
-// }
 
 
 module.exports = {
-    getAllUsers,
+    setUserIdInParams,
+    getMe,
     updateMe,
     deleteMe,
-    // getUser,
-    // createUser,
-    // updateUser,
-    // deleteUser,
+    createUser,
+    getUser,
+    getAllUsers,
+    updateUser,
+    deleteUser,
 };

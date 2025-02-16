@@ -1,25 +1,34 @@
+const path = require('path')
 const express = require('express');
 const morgan = require('morgan');
-const tourRoute = require('./routes/tourRoutes');
-const userRoute = require('./routes/userRoutes');
-const AppError = require('./Error/AppError')
 const hpp = require("hpp")
 const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize');
 const sanitizeHtml = require("sanitize-html");
 const globalErrorHandler = require("./controllers/errorController")
+const tourRoute = require('./routes/tourRoutes');
+const userRoute = require('./routes/userRoutes');
+const reviewRoute = require('./routes/reviewRoutes');
+const viewRoute = require('./routes/viewRouter')
+const AppError = require('./Error/AppError')
 
-// App :
-
+// ============ App : ====================
 const app = express();
 
-//  MIDDELWARE
 
+// ================ View engien : =================
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public'))); // for static file 
+
+
+
+// ============================ MIDDELWARE : ===================
 
 // Security HTTP Headers :in the first fot security  
 app.use(helmet());
-
 
 // rate-limiting : allow 100 req per 1h from the some IP  : 100 req / 1h 
 const limiter = rateLimit({
@@ -62,7 +71,6 @@ app.use(cleanInput);
 
 
 // hpp : HTPP Parametre Pollution :
-
 app.use(hpp({
     whitelist: [
         "duration",
@@ -75,10 +83,6 @@ app.use(hpp({
 }));
 
 
-// for static file :
-app.use(express.static(`${__dirname}/public`));
-
-
 // custom middelware to add time :
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
@@ -88,14 +92,15 @@ app.use((req, res, next) => {
 
 
 
-// ROUTES
+// ============================ ROUTES : ======================================
 
 app.use('/api/v1/tours', tourRoute);
 app.use('/api/v1/users', userRoute);
+app.use('/api/v1/reviews', reviewRoute);
+app.use('/', viewRoute);
 
 
-
-// Error Handling  
+// =========================== Error Handling : =================================
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl}`, 400))

@@ -256,6 +256,13 @@ const updatePassword = catchAsync(async (req, res, next) => {
 
 });
 
+
+const isLoggedIn = async (req, res, next) => {
+
+
+    next();
+}
+
 module.exports = {
     signup,
     login,
@@ -263,5 +270,6 @@ module.exports = {
     restrictiTo,
     forgotPassword,
     resetPassword,
-    updatePassword
+    updatePassword,
+    isLoggedIn
 }

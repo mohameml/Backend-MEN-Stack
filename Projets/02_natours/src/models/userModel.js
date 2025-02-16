@@ -51,6 +51,8 @@ const userSchema = new mongoose.Schema(
 )
 
 
+// ========================== Middelware save : =================================
+
 userSchema.pre('save', async function (next) {
 
     if (!this.isModified('password')) return next();
@@ -69,6 +71,8 @@ userSchema.pre('save', async function (next) {
 })
 
 
+// ===================== Middelware find ======================
+
 userSchema.pre(/^find/, function (next) {
     // this pointe to : query 
 
@@ -76,10 +80,15 @@ userSchema.pre(/^find/, function (next) {
     next();
 })
 
+
+// ===========================  Méthodes :  ===================================== 
+
+
 userSchema.methods.verifyPassword = async (candidatePassword, realPassword) => {
 
     return await bcrypt.compare(candidatePassword, realPassword);
 }
+
 
 userSchema.methods.isPasswordChanged = function (JWTTimestep) {
 
