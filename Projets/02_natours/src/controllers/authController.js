@@ -94,6 +94,8 @@ const protect = catchAsync(async (req, res, next) => {
 
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
         token = req.headers.authorization.split(" ")[1];
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
     }
 
 
@@ -257,10 +259,44 @@ const updatePassword = catchAsync(async (req, res, next) => {
 });
 
 
-const isLoggedIn = async (req, res, next) => {
+// Only for render page , no errors ! 
+const isLoggedIn = catchAsync(async (req, res, next) => {
+
+    if (req.cookies.jwt) {
+
+        // 1) Verify Token : 
+
+        const token = req.cookies.jwt;
+        const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+        // 2) Check if user exists : 
+
+        const user = await User.findById(decode.id);
+
+        if (!user) {
+            return next();
+        }
+
+        // 3) Check if user changend password after the token was issued 
+
+        if (user.isPasswordChanged(decode.iat)) {
+
+            return next();
+        }
+
+
+        // there is user login : 
+        res.locals.user = user;
+        return next();
+    }
 
 
     next();
+});
+
+
+const logout = (req, res, next) => {
+
 }
 
 module.exports = {

@@ -6,13 +6,17 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "watch:js": "parcel watch ./public/js/index.js --dist-dir ./public/js",
+    "build:js": "parcel watch ./public/js/index.js --dist-dir ./public/js"
   },
   "author": "Nebil",
   "license": "ISC",
   "dependencies": {
     "base64id": "^2.0.0",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "express-mongo-sanitize": "^2.2.0",
@@ -39,6 +43,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.2",
+    "parcel": "^2.13.3",
     "prettier": "^3.4.2"
   }
 }

@@ -31,17 +31,42 @@ const getTour = catchAsync(async (req, res, next) => {
 
     // 2) Build template
     // 3) Render template using data from 1)
-    res.status(200).render('tour', {
-        title: `${tour.name} Tour`,
-        tour
-    });
+    res
+        .status(200)
+        .set(
+            'Content-Security-Policy',
+            'connect-src https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com'
+        )
+        .render('tour', {
+            title: `${tour.name} Tour`,
+            tour
+        });
 });
 
-const getLoginForm = (req, res) => {
-    res.status(200).render('login', {
-        title: 'Log into your account'
-    });
+const getLoginForm = (req, res, next) => {
+    res
+        .status(200)
+        .set(
+            'Content-Security-Policy',
+            "connect-src 'self' https://cdnjs.cloudflare.com http://127.0.0.1:3000/"
+        )
+        .render('login', {
+            title: 'Log into your account'
+        });
 };
+
+const getSignupForm = (req, res, next) => {
+    res.status(200).render('signup', {
+        title: 'SignUp Page'
+    })
+}
+
+const handelLogout = (req, res, next) => {
+    res.status(200).json({
+        msg: 'Logout'
+    })
+}
+
 
 const getAccount = (req, res) => {
     res.status(200).render('account', {
@@ -73,6 +98,9 @@ module.exports = {
     getOverview,
     getTour,
     getLoginForm,
+    getSignupForm,
     getAccount,
-    updateUserData
+    updateUserData,
+    handelLogout
+
 }

@@ -12,6 +12,8 @@ const userRoute = require('./routes/userRoutes');
 const reviewRoute = require('./routes/reviewRoutes');
 const viewRoute = require('./routes/viewRouter')
 const AppError = require('./Error/AppError')
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 // ============ App : ====================
 const app = express();
@@ -26,6 +28,9 @@ app.use(express.static(path.join(__dirname, 'public'))); // for static file
 
 
 // ============================ MIDDELWARE : ===================
+
+
+app.use(cors())
 
 // Security HTTP Headers :in the first fot security  
 app.use(helmet());
@@ -48,7 +53,7 @@ if (process.env.NODE_ENV === 'developement') {
 
 // for json parser :
 app.use(express.json({ limit: '10kb' }));
-
+app.use(cookieParser())
 
 // Data Sanitization against NoSQL query injection : 
 app.use(mongoSanitize());
@@ -86,6 +91,7 @@ app.use(hpp({
 // custom middelware to add time :
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
+    console.log(req.cookies)
     next();
 });
 
