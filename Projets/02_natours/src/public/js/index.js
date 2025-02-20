@@ -54,5 +54,56 @@
 //     document.getElementById('password-confirm').value = '';
 //   });
 
+/* eslint-disable */
 
-console.log('Hello from Parcel ')
+import { login, signup, logout } from './login'
+import { displayMap } from './mapbox'
+
+
+const mapbox = document.getElementById('map');
+const loginForm = document.querySelector('.form--login');
+const logoutBtn = document.querySelector('.nav__el--logout')
+const signupForm = document.querySelector('.form--signup')
+
+// ================= display Map in /tour :  ===================
+if (mapbox) {
+
+    const locations = JSON.parse(mapbox.dataset.locations);
+    displayMap(locations);
+
+}
+
+// ================ for /signup : User ===================
+if (signupForm) {
+
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // Empêche le rechargement de la page
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('passwordConfirm').value;
+
+        signup(name, email, password, passwordConfirm);
+
+    })
+}
+
+
+
+// ================ for /login User : =====================
+if (loginForm) {
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // Empêche le rechargement de la page
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        login(email, password);
+
+    });
+}
+
+// ================ logout user : ===================
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', logout);
+}

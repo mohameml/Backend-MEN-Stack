@@ -8,14 +8,13 @@ const router = express.Router();
 router.get('/', authController.isLoggedIn, viewsController.getOverview);
 router.get('/tour/:slug', authController.isLoggedIn, viewsController.getTour);
 router.get('/login', authController.isLoggedIn, viewsController.getLoginForm);
-router.get('/logout', authController.isLoggedIn, viewsController.handelLogout);
 router.get('/signup', authController.isLoggedIn, viewsController.getSignupForm);
 
 // router.get('/me', authController.protect, viewsController.getAccount);
 
 // router.post(
 //     '/submit-user-data',
-//     authController.protect,
+//     authController.protect ,
 //     viewsController.updateUserData
 // );
 

@@ -1,34 +1,64 @@
 const AppError = require("../Error/AppError");
 
-const sendErrorDev = (err, res) => {
+const sendErrorDev = (err, req, res) => {
     console.log(err);
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        message: err.message,
-        stack: err.stack
-    })
+
+    if (req.originalUrl.startsWith('/api')) {
+
+        // for API : 
+        res.status(err.statusCode).json({
+            status: err.status,
+            error: err,
+            message: err.message,
+            stack: err.stack
+        });
+
+    } else {
+
+        // for SSR :
+        res.status(err.statusCode).render('error', {
+            title: 'Something went wrong !',
+            msg: err.message
+        });
+
+    }
 
 }
 
 
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (err, req, res) => {
 
-    if (err.isOperational) {
+    // for API : 
+    if (req.originalUrl.startsWith('/api')) {
 
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message,
-        })
-    } else {
+        if (err.isOperational) {
+
+            return res.status(err.statusCode).json({
+                status: err.status,
+                message: err.message,
+            });
+        }
 
         console.error('ERROR :', err);
-
-        res.status(500).json({
+        return res.status(500).json({
             status: 'error',
             message: 'Somthing went very wrong, please try again',
         })
+
     }
+
+
+    if (err.isOperational) {
+
+        return res.status(err.statusCode).render('error', {
+            msg: err.message
+        });
+    }
+
+    return res.status(500).render('error', {
+        msg: 'Somthing went very wrong, please try again '
+    });
+
 }
 
 const handelCastErrorDB = (err) => {
@@ -61,7 +91,7 @@ const globaleErrorHandling = (err, req, res, next) => {
     err.status = err.status || 'error';
     if (process.env.NODE_ENV === "developement") {
 
-        sendErrorDev(err, res);
+        sendErrorDev(err, req, res);
 
     } else if (process.env.NODE_ENV === "production") {
 
@@ -87,7 +117,7 @@ const globaleErrorHandling = (err, req, res, next) => {
             error = handelJWTExpireError(err);
         }
 
-        sendErrorProd(error, res);
+        sendErrorProd(error, req, res);
     }
 
 

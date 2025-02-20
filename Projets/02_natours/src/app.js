@@ -34,6 +34,56 @@ app.use(cors())
 
 // Security HTTP Headers :in the first fot security  
 app.use(helmet());
+// Set security HTTP headers
+// app.use(
+//     helmet({
+//         contentSecurityPolicy: {
+//             directives: {
+//                 defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
+//                 baseUri: ["'self'"],
+//                 fontSrc: ["'self'", 'https:', 'data:'],
+//                 scriptSrc: [
+//                     "'self'",
+//                     'https:',
+//                     'http:',
+//                     'blob:',
+//                     'https://*.mapbox.com',
+//                     'https://js.stripe.com',
+//                     'https://m.stripe.network',
+//                     'https://*.cloudflare.com',
+//                 ],
+//                 frameSrc: ["'self'", 'https://js.stripe.com'],
+//                 objectSrc: ["'none'"],
+//                 styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+//                 workerSrc: [
+//                     "'self'",
+//                     'data:',
+//                     'blob:',
+//                     'https://*.tiles.mapbox.com',
+//                     'https://api.mapbox.com',
+//                     'https://events.mapbox.com',
+//                     'https://m.stripe.network',
+//                 ],
+//                 childSrc: ["'self'", 'blob:'],
+//                 imgSrc: ["'self'", 'data:', 'blob:'],
+//                 formAction: ["'self'"],
+//                 connectSrc: [
+//                     "'self'",
+//                     "'unsafe-inline'",
+//                     'data:',
+//                     'blob:',
+//                     'https://*.stripe.com',
+//                     'https://*.mapbox.com',
+//                     'https://*.cloudflare.com/',
+//                     'https://bundle.js:*',
+//                     'ws://127.0.0.1:*/',
+
+//                 ],
+//                 upgradeInsecureRequests: [],
+//             },
+//         },
+//     })
+// );
 
 // rate-limiting : allow 100 req per 1h from the some IP  : 100 req / 1h 
 const limiter = rateLimit({
@@ -109,7 +159,11 @@ app.use('/', viewRoute);
 // =========================== Error Handling : =================================
 
 app.all('*', (req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl}`, 400))
+    if (req.originalUrl.startsWith('/api')) {
+        next(new AppError(`Can't find ${req.originalUrl}`, 400))
+    } else {
+        next(new AppError(`404 Page not found !!`, 400))
+    }
 })
 
 app.use(globalErrorHandler);

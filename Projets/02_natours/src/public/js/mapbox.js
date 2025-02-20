@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const displayMap = locations => {
+export const displayMap = locations => {
 
     mapboxgl.accessToken = 'pk.eyJ1IjoibW9oYW1lbWwiLCJhIjoiY203YXdqN2ZqMDM3bTJxc2Z0YXR3NGMweiJ9.Bmgd-CMnjFOyRv329ygVhg';
 
@@ -54,10 +54,4 @@ const displayMap = locations => {
 };
 
 
-const locations = JSON.parse(document.getElementById('map').dataset.locations);
-
-displayMap(locations);
-
-
-console.log(locations);
 
