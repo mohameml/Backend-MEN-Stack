@@ -1,69 +1,19 @@
-// /* eslint-disable */
-// import '@babel/polyfill';
-// import { displayMap } from './mapbox';
-// import { login, logout } from './login';
-// import { updateSettings } from './updateSettings';
-
-// // DOM ELEMENTS
-// const mapBox = document.getElementById('map');
-// const loginForm = document.querySelector('.form--login');
-// const logOutBtn = document.querySelector('.nav__el--logout');
-// const userDataForm = document.querySelector('.form-user-data');
-// const userPasswordForm = document.querySelector('.form-user-password');
-
-// // DELEGATION
-// if (mapBox) {
-//   const locations = JSON.parse(mapBox.dataset.locations);
-//   displayMap(locations);
-// }
-
-// if (loginForm)
-//   loginForm.addEventListener('submit', e => {
-//     e.preventDefault();
-//     const email = document.getElementById('email').value;
-//     const password = document.getElementById('password').value;
-//     login(email, password);
-//   });
-
-// if (logOutBtn) logOutBtn.addEventListener('click', logout);
-
-// if (userDataForm)
-//   userDataForm.addEventListener('submit', e => {
-//     e.preventDefault();
-//     const name = document.getElementById('name').value;
-//     const email = document.getElementById('email').value;
-//     updateSettings({ name, email }, 'data');
-//   });
-
-// if (userPasswordForm)
-//   userPasswordForm.addEventListener('submit', async e => {
-//     e.preventDefault();
-//     document.querySelector('.btn--save-password').textContent = 'Updating...';
-
-//     const passwordCurrent = document.getElementById('password-current').value;
-//     const password = document.getElementById('password').value;
-//     const passwordConfirm = document.getElementById('password-confirm').value;
-//     await updateSettings(
-//       { passwordCurrent, password, passwordConfirm },
-//       'password'
-//     );
-
-//     document.querySelector('.btn--save-password').textContent = 'Save password';
-//     document.getElementById('password-current').value = '';
-//     document.getElementById('password').value = '';
-//     document.getElementById('password-confirm').value = '';
-//   });
-
 /* eslint-disable */
 
-import { login, signup, logout } from './login'
+import { showAlert } from './alerts';
+import { login, signup, logout, forgetPassword } from './auth'
 import { displayMap } from './mapbox'
-
+import { updateUserData, updateUserPassword } from './updateUser'
+import { bookTour } from './stripe'
 
 const mapbox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout')
 const signupForm = document.querySelector('.form--signup')
+const updateUserDataForm = document.querySelector('.form-user-data');
+const updateUserPasswordForm = document.querySelector('.form-user-password');
+const btnForgetPassword = document.querySelector('.btn-forget');
+const btnBookingTour = document.getElementById('booking-tour');
 
 // ================= display Map in /tour :  ===================
 if (mapbox) {
@@ -106,4 +56,68 @@ if (loginForm) {
 // ================ logout user : ===================
 if (logoutBtn) {
     logoutBtn.addEventListener('click', logout);
+}
+
+// ================ Update User Data : ====================
+
+if (updateUserDataForm) {
+    updateUserDataForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const photo = document.getElementById('photo').files[0];
+
+        const form = new FormData();
+
+        form.append('name', name);
+        form.append('email', email);
+        form.append('photo', photo);
+
+
+        updateUserData(form);
+
+    })
+}
+
+// ================= Update User password ================
+
+if (updateUserPasswordForm) {
+    updateUserPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const passwordCurr = document.getElementById('password-current').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+        await updateUserPassword(passwordCurr, password, passwordConfirm);
+    })
+}
+
+// ============= Reset Password =============
+
+if (btnForgetPassword) {
+
+    btnForgetPassword.addEventListener('click', e => {
+
+        const email = document.getElementById('email').value;
+
+        if (!email) {
+            showAlert('error', 'Please Provide an email');
+        } else {
+
+            forgetPassword(email);
+        }
+
+
+    })
+}
+
+// ================ Booking Tour ==================
+if (btnBookingTour) {
+    const tourId = btnBookingTour.dataset.tourid;
+    btnBookingTour.addEventListener('click', e => {
+        e.target.textContent = 'Processing ...';
+        bookTour(tourId);
+        e.target.textContent = 'Book tour now!';
+
+    })
 }

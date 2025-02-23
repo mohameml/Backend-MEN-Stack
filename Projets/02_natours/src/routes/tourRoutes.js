@@ -56,9 +56,21 @@ router
 
 router
     .route('/:id')
-    .get(tourController.getTour)
-    .patch(authController.protect, authController.restrictiTo("admin", "lead-guide"), tourController.updateTour)
-    .delete(authController.protect, authController.restrictiTo("admin", "lead-guide"), tourController.deleteTour);
+    .get(
+        tourController.getTour
+    )
+    .patch(
+        authController.protect,
+        authController.restrictiTo("admin", "lead-guide"),
+        tourController.uploadToursImages,
+        tourController.resizeTourImages,
+        tourController.updateTour
+    )
+    .delete(
+        authController.protect,
+        authController.restrictiTo("admin", "lead-guide"),
+        tourController.deleteTour
+    );
 
 
 // ==================== nested Router for reviwes =================

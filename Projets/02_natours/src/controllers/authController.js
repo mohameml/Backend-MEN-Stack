@@ -3,8 +3,8 @@ const catchAsync = require('../utils/catchAsync')
 const jwt = require('jsonwebtoken')
 const AppError = require('../Error/AppError')
 const { promisify } = require('util')
-const emailService = require('../utils/email')
 const crypto = require('crypto')
+const Email = require('../utils/email')
 
 const signToken = id => {
 
@@ -51,6 +51,13 @@ const signup = catchAsync(async (req, res, next) => {
     // });
 
     const newUser = await User.create(req.body);
+
+    const url = `${req.protocol}://${req.get('host')}/me`;
+
+    const email = new Email(newUser, url);
+
+    await email.sendWelcome();
+
     createAndSendToken(newUser, 201, res);
 
 })
@@ -87,7 +94,7 @@ const login = catchAsync(async (req, res, next) => {
 const logout = (req, res, next) => {
 
     const cookieOptions = {
-        expires: new Date(Date.now() + 10 * 1000),
+        expires: new Date(0),
         httpOnly: true
     }
 
@@ -96,6 +103,7 @@ const logout = (req, res, next) => {
     res.status(200).json({
         status: 'success'
     });
+
 }
 
 
@@ -138,6 +146,7 @@ const protect = catchAsync(async (req, res, next) => {
 
     // GRANT ACCESS TO PROTECED ROUTE :
     req.user = user;
+    res.locals.user = user;
     next();
 
 
@@ -177,18 +186,12 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
     // 3) Send it to user's email 
 
-    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${token}`;
-
-    const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm  to : ${resetURL}\nIf you didn't forget your password , please ignore this email!`;
-
-
     try {
 
-        await emailService.sendEmail({
-            email: user.email,
-            subject: 'Your password reset token (valid for 10 min)',
-            message: message,
-        });
+        const url = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${token}`;
+        const email = new Email(user, url);
+
+        await email.sendPasswordReset();
 
         res.status(200).json({
             status: 'success',

@@ -3,8 +3,6 @@ import axios from 'axios'
 import { showAlert } from './alerts';
 
 
-
-
 export const signup = async (name, email, password, passwordConfirm) => {
 
 
@@ -70,6 +68,8 @@ export const login = async (email, password) => {
 
 
 export const logout = async () => {
+
+
     try {
 
         const res = await axios({
@@ -79,10 +79,39 @@ export const logout = async () => {
 
         if (res.data.status === 'success') {
             showAlert('success', "Logged out successfully !");
-            location.reload(true);
+
+            window.setTimeout(() => {
+                location.assign('/login');
+
+            }, 1000)
+            // location.reload(true);
         }
 
     } catch (e) {
         showAlert('error', 'Error logging out! Try again.');
+    }
+}
+
+
+export const forgetPassword = async (email) => {
+
+    try {
+
+        const res = await axios({
+            method: 'POST',
+            url: 'http://127.0.0.1:3000/api/v1/users/forgotPassword',
+            data: {
+                email,
+            }
+        });
+
+
+        if (res.data.status === 'success') {
+
+            showAlert('success', "An Email is send in to your account for reset password");
+        }
+
+    } catch (e) {
+        showAlert('error', e.response.data.message);
     }
 }

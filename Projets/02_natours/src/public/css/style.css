@@ -1333,3 +1333,7 @@ body {
   -webkit-transform: translateY(-2px);
   transform: translateY(-2px);
 }
+
+.btn-forget {
+  margin-top:  15px;
+}

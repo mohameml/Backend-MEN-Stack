@@ -6,23 +6,30 @@ const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize');
 const sanitizeHtml = require("sanitize-html");
-const globalErrorHandler = require("./controllers/errorController")
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+
 const tourRoute = require('./routes/tourRoutes');
 const userRoute = require('./routes/userRoutes');
 const reviewRoute = require('./routes/reviewRoutes');
 const viewRoute = require('./routes/viewRouter')
+const bookingRoute = require('./routes/bookingRoutes');
+const globalErrorHandler = require("./controllers/errorController")
+
 const AppError = require('./Error/AppError')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
+
+
 
 // ============ App : ====================
 const app = express();
 
 
+
+
 // ================ View engien : =================
 
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views')); // foler for view 
 app.use(express.static(path.join(__dirname, 'public'))); // for static file 
 
 
@@ -103,6 +110,12 @@ if (process.env.NODE_ENV === 'developement') {
 
 // for json parser :
 app.use(express.json({ limit: '10kb' }));
+
+// permert de parser application/x-ww-urlencoded from HTML Form : 
+app.use(express.urlencoded({
+    extended: true,
+    limit: '10kb'
+}));
 app.use(cookieParser())
 
 // Data Sanitization against NoSQL query injection : 
@@ -113,9 +126,7 @@ app.use(mongoSanitize());
 const cleanInput = (req, res, next) => {
     if (req.body) {
         for (const key in req.body) {
-            console.log(req.body[key]);
             req.body[key] = sanitizeHtml(req.body[key]); // Nettoie chaque champ du body
-            console.log(req.body[key]);
 
         }
     }
@@ -141,19 +152,19 @@ app.use(hpp({
 // custom middelware to add time :
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
-    console.log(req.cookies)
     next();
 });
 
 
 
 
-// ============================ ROUTES : ======================================
+// ============================ ROUTES for API  : ======================================
 
+app.use('/', viewRoute); // route for middelware for  SSR  
 app.use('/api/v1/tours', tourRoute);
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/reviews', reviewRoute);
-app.use('/', viewRoute);
+app.use('/api/v1/bookings', bookingRoute);
 
 
 // =========================== Error Handling : =================================

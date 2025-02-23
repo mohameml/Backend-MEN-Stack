@@ -2,7 +2,90 @@ const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync')
 const Factory = require('./handlerFactory')
 const AppError = require('../Error/AppError')
+const multer = require('multer')
+const sharp = require('sharp')
 
+
+// ============= config and init Multer ================
+
+
+const multerStorage = multer.memoryStorage();
+
+const multerFiletr = (req, file, cb) => {
+
+    if (file.mimetype.startsWith('image')) {
+        cb(null, true);
+    } else {
+        cb(new AppError('Not an image! Please upload only images', 400), false)
+    }
+}
+
+
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFiletr
+})
+
+
+// 
+const uploadToursImages = upload.fields([
+    {
+        name: 'imageCover',
+        maxCount: 1
+    },
+    {
+        name: 'images',
+        maxCount: 3
+    }
+]);
+
+// upload.signle('image') => req.file 
+// upload.array('images' , 5) => req.files  
+
+//
+
+const resizeTourImages = catchAsync(async (req, res, next) => {
+
+    if (!req.files.imageCover || !req.files.images) return next();
+
+    // 1) processsing imageCover  :
+
+    const imageCoverName = `tour-${req.params.id}-${Date.now()}-cover.jpeg`
+
+    await sharp(req.files.imageCover[0].buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({
+            quality: 90
+        })
+        .toFile(`public/img/tours/${imageCoverName}`);
+
+    req.body.imageCover = imageCoverName;
+
+    // 2) Processing Images : 
+
+    req.body.images = []
+
+    const ImagesPromises = req.files.images.map(async (file, i) => {
+
+        const fileName = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+
+        await sharp(file.buffer)
+            .resize(2000, 1333)
+            .toFormat('jpeg')
+            .jpeg({
+                quality: 90
+            })
+            .toFile(`public/img/tours/${fileName}`);
+
+        req.body.images.push(fileName);
+    });
+
+    await Promise.all(ImagesPromises);
+
+    next();
+});
 
 
 // Create Handler for Tour Model : 
@@ -242,5 +325,7 @@ module.exports = {
     getMinPrice,
     getMonthlyPlan,
     getToursWithin,
-    getDistances
+    getDistances,
+    uploadToursImages,
+    resizeTourImages
 };

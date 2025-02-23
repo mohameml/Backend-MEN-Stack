@@ -3,6 +3,8 @@ const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
 
 
+// ===== router : /users =====
+
 const router = express.Router();
 
 
@@ -33,7 +35,12 @@ router.get('/me',
     userController.getMe
 );
 
-router.patch('/updateMe', userController.updateMe);
+router.patch(
+    '/updateMe',
+    userController.uploadUserPhoto,
+    userController.resizeUserPhoto,
+    userController.updateMe
+);
 
 router.delete('/deleteMe', userController.deleteMe);
 
