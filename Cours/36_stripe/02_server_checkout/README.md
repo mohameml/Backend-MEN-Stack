@@ -200,35 +200,76 @@
     ![alt text](image-2.png)
 
 
-- **post-paiement : ``Stripe GET /success_url -> Backend``**
+- **post-paiement : ``Stripe WebHook POST /endpointWebHook -> Backend``**
+
 
     ```js
-    // dans viewRouter : 
-    router.get(
-        '/',
-        bookingController.createBookingCheckout,
-        authController.isLoggedIn,
-        viewsController.getOverview
-    );
+    // ============== app.js ===============
+    // avant le parsing : 
+    app.post(
+        '/webhook-checkout',
+        express.raw({
+            type: 'application/json'
+        }),
+        bookingController.webhookCheckout
+    )
 
-    // dans BookingController : 
-    const createBookingCheckout = catchAsync(async (req, res, next) => {
+    ```
 
-        // this is only for dev mode : is not secure : evryone can make booking without paying :
 
-        const { tour, user, price } = req.query;
+    ```js
+    const createBookingCheckout = async session => {
+        try {
+            const tour = session.client_reference_id;
+            const user = await User.findOne({ email: session.customer_email });
 
-        if (!tour || !user || !price) return next();
+            if (!user) throw new Error('User not found');
 
-        await Booking.create({
-            tour: tour,
-            user: user,
-            price: price
-        });
+            const price = session.amount_total / 100;
 
-        const homeUrl = req.originalUrl.split('?')[0];
-        res.redirect(homeUrl);
-    });
+            await Booking.create({
+                tour,
+                user: user._id,
+                price
+            });
+
+        } catch (err) {
+            console.error('Booking creation failed:', err);
+            // Envoyer une alerte ou loguer l'erreur
+        }
+    };
+
+    // ici : on parle avec stripe API et non client :
+    const webhookCheckout = async (req, res, next) => {
+
+        const sig = req.headers['stripe-signature'];
+
+        let event;
+
+        try {
+            event = stripe.webhooks.constructEvent(
+                req.body,
+                sig,
+                process.env.WEBHOOK_SECRET
+            );
+        } catch (err) {
+            return res.status(400).send(`Webhook Error ${err.message}`);
+        }
+
+        if (event.type === 'checkout.session.completed') {
+
+            const session = event.data.object;
+
+            // Vérification supplémentaire recommandée
+            if (session.payment_status === 'paid') {
+                await createBookingCheckout(session);
+            }
+
+        }
+
+        res.status(200).json({ received: true });
+    };
+
     ```
 
 
